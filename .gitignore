@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# Environment files (never commit secrets)
+.env
+.env.local
+
+# Docker
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
