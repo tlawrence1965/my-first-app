@@ -6,12 +6,26 @@ import os
 app = Flask(__name__)
 
 def get_db():
-	return psycopg2.connect(
-		host=os.environ["DB_HOST"],
-		database=os.environ["DB_NAME"],
-		user=os.environ["DB_USER"],
-		password=os.environ["DB_PASSWORD"]
-	)
+	return psycopg2.connect(os.environ["DATABASE_URL"])
+
+def init_db():
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS tasks (
+            id SERIAL PRIMARY KEY,
+            title VARCHAR(255) NOT NULL,
+            description TEXT,
+            priority VARCHAR(10) DEFAULT 'medium',
+            done BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+    conn.commit()
+    conn.close()
+
+# Call it when the app starts
+init_db()
 
 # GET all tasks
 @app.route("/tasks", methods=["GET"])
@@ -99,4 +113,5 @@ def health():
 		return jsonify({"status": "unhealthy", "error": str(e)}), 500
 
 if __name__ == "__main__":
-	app.run(host="0.0.0.0", port=5000, debug=True)
+	port = int(os.environ.get("PORT", 5000))
+	app.run(host="0.0.0.0", port=port, debug=True)
