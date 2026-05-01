@@ -43,15 +43,15 @@ def create_task():
 	conn = get_db()
 	cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 	cursor.execute(
-		"INSERT INTO tasks (title, description) VALUES (%s, %s) RETURNING *;",
-		(data["title"], data.get("description", ""))
+		"INSERT INTO tasks (title, description, priority) VALUES (%s, %s, %s) RETURNING *;",
+		(data["title"], data.get("description", ""), data.get("priority", "medium"))
 	)
 	task = cursor.fetchone()
 	conn.commit()
 	conn.close()
 	return jsonify(task), 201
 
-# UPDATE a new task
+# UPDATE a task
 @app.route("/tasks/<int:task_id>", methods=["PATCH"])
 def update_task(task_id):
     data = request.get_json()
@@ -59,11 +59,12 @@ def update_task(task_id):
     cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cursor.execute(
         """UPDATE tasks 
-           SET done = COALESCE(%s, done),
+           SET done = COALESCE(%s::boolean, done),
                title = COALESCE(%s, title),
-               description = COALESCE(%s, description)
+               description = COALESCE(%s, description),
+			   priority = COALESCE(%s, priority)
            WHERE id = %s RETURNING *;""",
-        (data.get("done"), data.get("title"), data.get("description"), task_id)
+        (data.get("done"), data.get("title"), data.get("description"), data.get("priority"), task_id)
     )
     task = cursor.fetchone()
     conn.commit()
