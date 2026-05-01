@@ -5,9 +5,9 @@ services:
         - "5000:5000"
     environment:
         DB_HOST: db
-        DB_NAME: myapp
-        DB_USER: myuser
-        DB_PASSWORD: mypassword
+        DB_NAME: ${POSTGRES_DB}
+        DB_USER: ${POSTGRES_USER}
+        DB_PASSWORD: ${POSTGRES_PASSWORD}
     depends_on:
         - db      # Don't start until db is up
     volumes:
@@ -16,9 +16,9 @@ services:
   db:
     image: postgres:16   # Use official Postgres image, no Dockerfile needed
     environment:
-      POSTGRES_DB: myapp
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql  # Run init script on startup
