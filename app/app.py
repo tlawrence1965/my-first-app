@@ -6,6 +6,14 @@ import os
 app = Flask(__name__)
 
 def get_db():
+	if os.environ.get("TESTING"):
+		return psycopg2.connect(
+			host="localhost",
+			port=5433,
+			database="myapp_test",
+			user=os.environ.get("DB_USER", "myuser"),
+			password=os.environ.get("DB_PASSWORD", "mypassword")
+		)
 	return psycopg2.connect(os.environ["DATABASE_URL"])
 
 def init_db():
@@ -94,6 +102,8 @@ def delete_task(task_id):
 	cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 	cursor.execute("DELETE FROM tasks WHERE id = %s RETURNING id;", (task_id,))
 	deleted = cursor.fetchone()
+	conn.commit()
+	conn.close()
 	if deleted is None:
 		return jsonify({"error": "Task not found"}), 404
 	return jsonify({"message": f"Task {deleted['id']} deleted"}), 200
