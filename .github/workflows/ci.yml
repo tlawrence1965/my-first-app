@@ -45,4 +45,4 @@ jobs:
           DB_PASSWORD: mypassword
           DATABASE_URL: postgresql://myuser:mypassword@localhost:5433/myapp_test
         run: |
-          pytests tests/ -v
+          pytest tests/ -v
